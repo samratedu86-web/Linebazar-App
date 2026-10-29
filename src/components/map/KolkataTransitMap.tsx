@@ -52,11 +52,16 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
     if (!mapContainerRef.current) return;
     if (mapInstanceRef.current) return;
 
+    // Clean up any stale leaflet ID if hot-reloaded or re-mounted
+    if ((mapContainerRef.current as any)._leaflet_id) {
+      delete (mapContainerRef.current as any)._leaflet_id;
+    }
+
     // Initialize Leaflet Map with full interactive zoom & drag enabled
     const map = L.map(mapContainerRef.current, {
       center: KOLKATA_CENTER,
       zoom: DEFAULT_ZOOM,
-      zoomControl: false, // We render custom high-visibility accessible floating controls
+      zoomControl: false, // Accessible custom floating controls
       scrollWheelZoom: true,
       touchZoom: true,
       doubleClickZoom: true,
@@ -65,10 +70,12 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
       keyboard: true,
     });
 
+    // Standard OpenStreetMap tiles (100% free, colorful with blue river, green parks, no API key required)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Linebazar Kolkata',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors | Linebazar Kolkata',
       maxZoom: 19,
-      minZoom: 10,
+      minZoom: 9,
     }).addTo(map);
 
     const polylinesLayer = L.layerGroup().addTo(map);
@@ -83,15 +90,34 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
       setCurrentZoom(map.getZoom());
     });
 
-    // Invalidate size once DOM layout is settled to ensure flawless pinch/wheel calculation
-    const resizeTimer = setTimeout(() => {
-      map.invalidateSize();
-    }, 250);
+    // Multiple staggered invalidateSize to ensure correct bounds in all rendering phases
+    const t0 = setTimeout(() => map.invalidateSize(), 50);
+    const t1 = setTimeout(() => map.invalidateSize(), 200);
+    const t2 = setTimeout(() => map.invalidateSize(), 600);
+
+    // ResizeObserver ensures map recalculates if tabs switch or container dynamically resizes
+    let resizeObserver: ResizeObserver | null = null;
+    if (window.ResizeObserver && mapContainerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      });
+      resizeObserver.observe(mapContainerRef.current);
+    }
 
     return () => {
-      clearTimeout(resizeTimer);
+      clearTimeout(t0);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       map.remove();
       mapInstanceRef.current = null;
+      if (mapContainerRef.current && (mapContainerRef.current as any)._leaflet_id) {
+        delete (mapContainerRef.current as any)._leaflet_id;
+      }
     };
   }, []);
 
@@ -106,7 +132,23 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
         const selectedRoute = routes.find((r) => r.id === selectedRouteId);
         if (selectedRoute && selectedRoute.stops.length > 0) {
           const bounds = L.latLngBounds(selectedRoute.stops.map((s) => [s.lat, s.lng]));
-          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14, animate: true });
+          if (bounds.isValid()) {
+            map.invalidateSize();
+            const fit = () => {
+              try {
+                if (mapInstanceRef.current) {
+                  mapInstanceRef.current.fitBounds(bounds, { padding: [45, 45], maxZoom: 14, animate: true });
+                }
+              } catch (e) {
+                console.warn('fitBounds error:', e);
+              }
+            };
+            if (map.getSize().x > 0 && map.getSize().y > 0) {
+              fit();
+            } else {
+              setTimeout(fit, 150);
+            }
+          }
         }
       }
     } else {
@@ -399,12 +441,22 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
   }, []);
 
   return (
-    <div className="relative z-[1] isolate overflow-hidden rounded-xl bg-slate-100">
-      {/* Map DOM Element */}
-      <div ref={mapContainerRef} className={className} />
+    <div
+      className={`relative isolate rounded-xl overflow-hidden bg-slate-100 ${className}`}
+      style={{ minHeight: '400px' }}
+    >
+      {/* Map DOM Element with strict minHeight guarantees */}
+      <div
+        ref={mapContainerRef}
+        className="w-full h-full"
+        style={{ width: '100%', height: '100%', minHeight: '400px' }}
+      />
 
       {/* Floating Modern Map Controls (Top Right) */}
-      <div className="absolute top-3 right-3 z-[30] flex flex-col gap-1.5 shadow-md rounded-lg overflow-hidden border border-slate-200/90 bg-white/95 backdrop-blur-sm p-1">
+      <div
+        className="absolute top-3 right-3 z-[1000] flex flex-col gap-1.5 shadow-md rounded-lg overflow-hidden border border-slate-200/90 bg-white/95 backdrop-blur-sm p-1"
+        style={{ pointerEvents: 'auto' }}
+      >
         <button
           type="button"
           onClick={handleZoomIn}
@@ -458,7 +510,10 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
       </div>
 
       {/* Floating Bottom Legend */}
-      <div className="absolute bottom-3 left-3 z-[25] bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-lg p-2.5 shadow-sm text-xs space-y-1.5 pointer-events-auto">
+      <div
+        className="absolute bottom-3 left-3 z-[900] bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-lg p-2.5 shadow-sm text-xs space-y-1.5 pointer-events-auto"
+        style={{ pointerEvents: 'auto' }}
+      >
         <div className="flex items-center justify-between gap-3">
           <span className="font-semibold text-slate-800 text-[11px] uppercase tracking-wider">Kolkata Transit</span>
           <span className="text-[10px] text-slate-400 font-mono">Zoom: {currentZoom}x</span>
