@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import L from 'leaflet';
+import { Plus, Minus, Crosshair, RotateCcw } from 'lucide-react';
 import { BusRegistration, BusRoute, BusStand, Trip, WaitSignal } from '../../types';
 
 interface KolkataTransitMapProps {
@@ -15,6 +16,9 @@ interface KolkataTransitMapProps {
   className?: string;
 }
 
+const KOLKATA_CENTER: [number, number] = [22.5726, 88.3639];
+const DEFAULT_ZOOM = 12;
+
 export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
   routes,
   trips,
@@ -25,17 +29,21 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
   selectedBusId,
   onSelectBus,
   onSelectStop,
-  className = 'h-[500px] w-full rounded-xl overflow-hidden shadow-sm border border-slate-200',
+  className = 'h-[520px] w-full rounded-xl overflow-hidden shadow-sm border border-slate-200',
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const polylinesLayerRef = useRef<L.LayerGroup | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
+  const lastFittedRouteRef = useRef<string | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [locating, setLocating] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(DEFAULT_ZOOM);
 
-  // Heartbeat for "seconds ago"
+  // Heartbeat for "seconds ago" updates
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 2000);
+    const timer = setInterval(() => setNow(Date.now()), 3000);
     return () => clearInterval(timer);
   }, []);
 
@@ -44,17 +52,23 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
     if (!mapContainerRef.current) return;
     if (mapInstanceRef.current) return;
 
-    // Kolkata Center Coordinates
+    // Initialize Leaflet Map with full interactive zoom & drag enabled
     const map = L.map(mapContainerRef.current, {
-      center: [22.5726, 88.3639],
-      zoom: 12,
-      zoomControl: true,
+      center: KOLKATA_CENTER,
+      zoom: DEFAULT_ZOOM,
+      zoomControl: false, // We render custom high-visibility accessible floating controls
       scrollWheelZoom: true,
+      touchZoom: true,
+      doubleClickZoom: true,
+      boxZoom: true,
+      dragging: true,
+      keyboard: true,
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors | Linebazar Kolkata',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Linebazar Kolkata',
       maxZoom: 19,
+      minZoom: 10,
     }).addTo(map);
 
     const polylinesLayer = L.layerGroup().addTo(map);
@@ -64,13 +78,43 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
     markersLayerRef.current = markersLayer;
     mapInstanceRef.current = map;
 
+    // Track current zoom level
+    map.on('zoomend', () => {
+      setCurrentZoom(map.getZoom());
+    });
+
+    // Invalidate size once DOM layout is settled to ensure flawless pinch/wheel calculation
+    const resizeTimer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+
     return () => {
+      clearTimeout(resizeTimer);
       map.remove();
       mapInstanceRef.current = null;
     };
   }, []);
 
-  // Update Layers when data or selection changes
+  // Handle Route Bounds fitting ONLY when selectedRouteId genuinely changes
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (selectedRouteId) {
+      if (lastFittedRouteRef.current !== selectedRouteId) {
+        lastFittedRouteRef.current = selectedRouteId;
+        const selectedRoute = routes.find((r) => r.id === selectedRouteId);
+        if (selectedRoute && selectedRoute.stops.length > 0) {
+          const bounds = L.latLngBounds(selectedRoute.stops.map((s) => [s.lat, s.lng]));
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14, animate: true });
+        }
+      }
+    } else {
+      lastFittedRouteRef.current = null;
+    }
+  }, [selectedRouteId, routes]);
+
+  // Update Layers when data changes (WITHOUT resetting user's manual zoom or pan)
   useEffect(() => {
     const map = mapInstanceRef.current;
     const polylinesLayer = polylinesLayerRef.current;
@@ -95,7 +139,6 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
         color: route.color || '#0284c7',
         weight: isSelected ? 5 : 3,
         opacity: isSelected ? 0.95 : 0.65,
-        dashArray: route.category === 'ac_express' ? undefined : undefined,
       });
 
       polyline.bindTooltip(
@@ -108,7 +151,6 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
       // Render Stop Markers for selected route
       if (isSelected || routes.length <= 2) {
         route.stops.forEach((stop) => {
-          // Calculate wait count for this stop
           const stopWaitCount = waitSignals.filter(
             (w) => w.stopId === stop.id && w.status === 'active'
           ).length;
@@ -206,7 +248,6 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
       const bus = buses.find((b) => b.id === trip.busId);
       const route = routes.find((r) => r.id === trip.routeId);
 
-      // Seconds ago calculation
       const pingTime = new Date(loc.timestamp).getTime();
       const secondsAgo = Math.max(0, Math.floor((now - pingTime) / 1000));
 
@@ -281,24 +322,147 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
 
       markersLayer.addLayer(marker);
     });
+  }, [routes, trips, buses, stands, waitSignals, selectedRouteId, selectedBusId, now, onSelectBus, onSelectStop]);
 
-    // If a specific route is selected, fit bounds smoothly
+  // Zoom In Handler
+  const handleZoomIn = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.zoomIn();
+    }
+  }, []);
+
+  // Zoom Out Handler
+  const handleZoomOut = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.zoomOut();
+    }
+  }, []);
+
+  // Reset to Kolkata Center or Active Route
+  const handleResetView = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
     if (selectedRouteId) {
       const selectedRoute = routes.find((r) => r.id === selectedRouteId);
       if (selectedRoute && selectedRoute.stops.length > 0) {
         const bounds = L.latLngBounds(selectedRoute.stops.map((s) => [s.lat, s.lng]));
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14, animate: true });
+        return;
       }
     }
-  }, [routes, trips, buses, stands, waitSignals, selectedRouteId, selectedBusId, now, onSelectBus, onSelectStop]);
+    map.setView(KOLKATA_CENTER, DEFAULT_ZOOM, { animate: true });
+  }, [selectedRouteId, routes]);
+
+  // User Geolocation Handler
+  const handleLocateUser = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    const map = mapInstanceRef.current;
+    if (!map || !navigator.geolocation) return;
+
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        const { latitude, longitude } = pos.coords;
+        map.setView([latitude, longitude], 15, { animate: true });
+
+        // Add or move user marker
+        if (userMarkerRef.current) {
+          userMarkerRef.current.setLatLng([latitude, longitude]);
+        } else {
+          const userIcon = L.divIcon({
+            html: `
+              <div class="relative flex items-center justify-center">
+                <span class="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-sky-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-4 w-4 bg-sky-600 border-2 border-white shadow-md"></span>
+              </div>
+            `,
+            className: 'user-location-marker',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+          });
+          userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon }).addTo(map);
+          userMarkerRef.current.bindPopup('<div class="font-bold text-xs">Your Current Location</div>').openPopup();
+        }
+      },
+      (err) => {
+        setLocating(false);
+        console.warn('Geolocation error:', err.message);
+        alert('Could not detect location. Please grant location permissions in your browser.');
+      },
+      { timeout: 8000, enableHighAccuracy: true }
+    );
+  }, []);
 
   return (
-    <div className="relative z-[1] isolate overflow-hidden rounded-xl">
+    <div className="relative z-[1] isolate overflow-hidden rounded-xl bg-slate-100">
+      {/* Map DOM Element */}
       <div ref={mapContainerRef} className={className} />
-      
-      {/* Map Floating Legend */}
-      <div className="absolute bottom-3 left-3 z-[5] bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-lg p-2.5 shadow-sm text-xs space-y-1.5 pointer-events-auto">
-        <div className="font-semibold text-slate-800 text-[11px] uppercase tracking-wider">Kolkata Live Transit</div>
+
+      {/* Floating Modern Map Controls (Top Right) */}
+      <div className="absolute top-3 right-3 z-[30] flex flex-col gap-1.5 shadow-md rounded-lg overflow-hidden border border-slate-200/90 bg-white/95 backdrop-blur-sm p-1">
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          title="Zoom In"
+          aria-label="Zoom in map"
+          className="w-8 h-8 flex items-center justify-center rounded text-slate-700 hover:text-slate-950 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+        </button>
+
+        <div className="h-px bg-slate-200 w-full" />
+
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          title="Zoom Out"
+          aria-label="Zoom out map"
+          className="w-8 h-8 flex items-center justify-center rounded text-slate-700 hover:text-slate-950 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        >
+          <Minus className="w-4 h-4 stroke-[2.5]" />
+        </button>
+
+        <div className="h-px bg-slate-200 w-full" />
+
+        <button
+          type="button"
+          onClick={handleLocateUser}
+          title="Find My Location"
+          aria-label="Find my current location"
+          disabled={locating}
+          className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
+            locating
+              ? 'text-sky-600 bg-sky-50 animate-pulse'
+              : 'text-slate-700 hover:text-sky-600 hover:bg-slate-100 active:bg-slate-200'
+          }`}
+        >
+          <Crosshair className="w-4 h-4 stroke-[2.2]" />
+        </button>
+
+        <div className="h-px bg-slate-200 w-full" />
+
+        <button
+          type="button"
+          onClick={handleResetView}
+          title="Reset / Center Map"
+          aria-label="Reset map view"
+          className="w-8 h-8 flex items-center justify-center rounded text-slate-700 hover:text-amber-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        >
+          <RotateCcw className="w-3.5 h-3.5 stroke-[2.2]" />
+        </button>
+      </div>
+
+      {/* Floating Bottom Legend */}
+      <div className="absolute bottom-3 left-3 z-[25] bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-lg p-2.5 shadow-sm text-xs space-y-1.5 pointer-events-auto">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-semibold text-slate-800 text-[11px] uppercase tracking-wider">Kolkata Transit</span>
+          <span className="text-[10px] text-slate-400 font-mono">Zoom: {currentZoom}x</span>
+        </div>
         <div className="flex items-center gap-2 text-slate-600 text-[11px]">
           <span className="w-2.5 h-2.5 rounded-full bg-slate-900 border border-white"></span>
           <span>Live Bus (GPS active)</span>

@@ -5,23 +5,45 @@
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
-/* Custom scrollbars and map markers */
+/* Leaflet Map Styles */
 .leaflet-container {
   font-family: inherit;
-  position: relative !important;
-  z-index: 1 !important;
-  isolation: isolate !important;
-  contain: paint layout !important;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
 }
 
-/* Ensure Leaflet controls and map panes never exceed container stacking */
+.leaflet-control-zoom {
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  transition: background-color 0.15s ease;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
 .leaflet-pane {
-  z-index: 10 !important;
+  z-index: 10;
 }
 
 .leaflet-top,
 .leaflet-bottom {
-  z-index: 20 !important;
+  z-index: 20;
 }
 
 /* Modal overlays must always sit above all GPU composited layers */
