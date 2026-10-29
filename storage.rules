@@ -1,0 +1,49 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.uid == '37Qpvpp1kpfcvkYiVpLRU1EGwE52' ||
+        request.auth.token.email == 'samrat.edu86@gmail.com'
+      );
+    }
+
+    // Bus Front Photos & Inspection Images
+    // Public read so passengers and crew can view vehicle photos across routes and live tracker
+    match /bus_photos/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated() &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    // User Profile Avatars & Documents: Admin can read/write all, users only own
+    match /user_profiles/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if (isOwner(userId) || isAdmin()) &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    // Transit route documents, CSV imports & KYC uploads: Admin has read/write to all files, users only own
+    match /uploads/{userId}/{allPaths=**} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if (isOwner(userId) || isAdmin()) &&
+        request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Admin has full access to all files in Storage; non-admin blocked unless matched above
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

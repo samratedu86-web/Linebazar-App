@@ -1,0 +1,100 @@
+{
+  "system": "Linebazar Kolkata Metropolitan Bus Transit",
+  "version": "1.0.0",
+  "verificationDate": "2026-10-22",
+  "totalRoutes": 8,
+  "totalStands": 8,
+  "routes": [
+    {
+      "routeNumber": "S-12",
+      "name": "Howrah Station to New Town Eco Space",
+      "origin": "Howrah Station",
+      "destination": "New Town Eco Space",
+      "category": "government",
+      "frequencyMins": 12,
+      "fareStartingInr": 15,
+      "firstBus": "05:30 AM",
+      "lastBus": "10:15 PM",
+      "stops": [
+        { "sequence": 1, "name": "Howrah Station Bus Terminal", "lat": 22.5835, "lng": 88.3426, "distanceKm": 0 },
+        { "sequence": 2, "name": "Brabourne Road / Tea Board", "lat": 22.5782, "lng": 88.3518, "distanceKm": 2.1 },
+        { "sequence": 3, "name": "BBD Bagh (Dalhousie)", "lat": 22.5726, "lng": 88.3475, "distanceKm": 3.4 },
+        { "sequence": 4, "name": "Esplanade (Dharmatala)", "lat": 22.5658, "lng": 88.3512, "distanceKm": 4.8 },
+        { "sequence": 5, "name": "Sealdah Railway Station", "lat": 22.5697, "lng": 88.3714, "distanceKm": 7.2 },
+        { "sequence": 6, "name": "Maniktala Crossing", "lat": 22.5852, "lng": 88.3742, "distanceKm": 9.3 },
+        { "sequence": 7, "name": "Ultadanga (Hudco)", "lat": 22.5975, "lng": 88.3888, "distanceKm": 11.5 },
+        { "sequence": 8, "name": "Salt Lake Karunamoyee", "lat": 22.5872, "lng": 88.4239, "distanceKm": 15.0 },
+        { "sequence": 9, "name": "Salt Lake Sector V (College More)", "lat": 22.5765, "lng": 88.4344, "distanceKm": 17.4 },
+        { "sequence": 10, "name": "New Town Action Area 1", "lat": 22.5812, "lng": 88.4598, "distanceKm": 20.2 },
+        { "sequence": 11, "name": "New Town Eco Space", "lat": 22.5932, "lng": 88.4821, "distanceKm": 23.5 }
+      ]
+    },
+    {
+      "routeNumber": "AC-12",
+      "name": "Howrah Station to Sapoorji Palonji (New Town)",
+      "origin": "Howrah Station",
+      "destination": "Sapoorji Complex",
+      "category": "ac_express",
+      "frequencyMins": 15,
+      "fareStartingInr": 25,
+      "firstBus": "06:00 AM",
+      "lastBus": "09:45 PM",
+      "stops": [
+        { "sequence": 1, "name": "Howrah Station Bus Terminal", "lat": 22.5835, "lng": 88.3426, "distanceKm": 0 },
+        { "sequence": 2, "name": "Moulali Crossing", "lat": 22.5592, "lng": 88.3681, "distanceKm": 5.2 },
+        { "sequence": 3, "name": "Sealdah Railway Station", "lat": 22.5697, "lng": 88.3714, "distanceKm": 6.8 },
+        { "sequence": 4, "name": "Beleghata Building More", "lat": 22.5678, "lng": 88.3985, "distanceKm": 9.6 },
+        { "sequence": 5, "name": "Salt Lake Stadium (Gate 3)", "lat": 22.5698, "lng": 88.4072, "distanceKm": 11.2 },
+        { "sequence": 6, "name": "Salt Lake Karunamoyee", "lat": 22.5872, "lng": 88.4239, "distanceKm": 14.1 },
+        { "sequence": 7, "name": "Sector V Wipro More", "lat": 22.5738, "lng": 88.4328, "distanceKm": 16.5 },
+        { "sequence": 8, "name": "New Town Akankha More", "lat": 22.6105, "lng": 88.4682, "distanceKm": 21.0 },
+        { "sequence": 9, "name": "Sapoorji Complex", "lat": 22.6012, "lng": 88.4988, "distanceKm": 25.4 }
+      ]
+    },
+    {
+      "routeNumber": "230",
+      "name": "Jadavpur 8B to Kamarhati Bus Stand",
+      "origin": "Jadavpur 8B",
+      "destination": "Kamarhati",
+      "category": "private",
+      "frequencyMins": 10,
+      "fareStartingInr": 12,
+      "firstBus": "05:45 AM",
+      "lastBus": "09:30 PM",
+      "stops": [
+        { "sequence": 1, "name": "Jadavpur 8B Bus Stand", "lat": 22.4988, "lng": 88.3718, "distanceKm": 0 },
+        { "sequence": 2, "name": "Dhakuria Bridge", "lat": 22.5112, "lng": 88.3685, "distanceKm": 2.3 },
+        { "sequence": 3, "name": "Gariahat Tram Depot", "lat": 22.5186, "lng": 88.3653, "distanceKm": 3.8 },
+        { "sequence": 4, "name": "Deshapriya Park", "lat": 22.5218, "lng": 88.3524, "distanceKm": 5.1 },
+        { "sequence": 5, "name": "Exide Crossing (Rabindra Sadan)", "lat": 22.5398, "lng": 88.3492, "distanceKm": 7.6 },
+        { "sequence": 6, "name": "Park Street Metro Crossing", "lat": 22.5522, "lng": 88.3518, "distanceKm": 9.2 },
+        { "sequence": 7, "name": "Esplanade (Dharmatala)", "lat": 22.5658, "lng": 88.3512, "distanceKm": 11.0 },
+        { "sequence": 8, "name": "Central Avenue / Girish Park", "lat": 22.5838, "lng": 88.3612, "distanceKm": 13.8 },
+        { "sequence": 9, "name": "Shyambazar Five-Point Crossing", "lat": 22.6025, "lng": 88.3719, "distanceKm": 16.5 },
+        { "sequence": 10, "name": "Dunlop Bridge", "lat": 22.6521, "lng": 88.3789, "distanceKm": 22.4 },
+        { "sequence": 11, "name": "Kamarhati Bus Stand", "lat": 22.6715, "lng": 88.3754, "distanceKm": 25.1 }
+      ]
+    },
+    {
+      "routeNumber": "47/1",
+      "name": "Kolkata Airport to Jadavpur 8B via EM Bypass",
+      "origin": "Kolkata Airport Gate 1",
+      "destination": "Jadavpur 8B",
+      "category": "government",
+      "frequencyMins": 14,
+      "fareStartingInr": 15,
+      "firstBus": "05:15 AM",
+      "lastBus": "10:30 PM",
+      "stops": [
+        { "sequence": 1, "name": "Kolkata Airport Terminal 2 Stand", "lat": 22.6547, "lng": 88.4467, "distanceKm": 0 },
+        { "sequence": 2, "name": "Kaikhali Crossing", "lat": 22.6321, "lng": 88.4385, "distanceKm": 3.2 },
+        { "sequence": 3, "name": "Ultadanga (Hudco)", "lat": 22.5975, "lng": 88.3888, "distanceKm": 8.5 },
+        { "sequence": 4, "name": "Salt Lake Stadium EM Bypass", "lat": 22.5698, "lng": 88.4072, "distanceKm": 12.2 },
+        { "sequence": 5, "name": "Science City Kolkata", "lat": 22.5392, "lng": 88.3965, "distanceKm": 16.0 },
+        { "sequence": 6, "name": "Ruby General Hospital More", "lat": 22.5134, "lng": 88.3988, "distanceKm": 19.5 },
+        { "sequence": 7, "name": "Santoshpur Connector", "lat": 22.4975, "lng": 88.3842, "distanceKm": 22.3 },
+        { "sequence": 8, "name": "Jadavpur 8B Bus Stand", "lat": 22.4988, "lng": 88.3718, "distanceKm": 24.8 }
+      ]
+    }
+  ]
+}

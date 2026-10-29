@@ -1,0 +1,249 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------
+    // Helper Functions & Attribute-Based Access Control (ABAC/RBAC)
+    // -------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAuthenticated() {
+      return isSignedIn();
+    }
+
+    function isUser(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && (
+        request.auth.token.email_verified == true ||
+        request.auth.token.firebase.sign_in_provider == 'phone' ||
+        request.auth.token.firebase.sign_in_provider == 'password'
+      );
+    }
+
+    // Bootstrapped Admin: Designated Admin User ID 37Qpvpp1kpfcvkYiVpLRU1EGwE52, verified email + Admin roles
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.uid == '37Qpvpp1kpfcvkYiVpLRU1EGwE52' ||
+        request.auth.token.email == 'samrat.edu86@gmail.com' ||
+        exists(/databases/$(database)/documents/profiles/$(request.auth.uid)/roles/admin) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isDriverOrConductor() {
+      return isSignedIn() && (
+        isAdmin() ||
+        exists(/databases/$(database)/documents/profiles/$(request.auth.uid)/roles/driver) ||
+        exists(/databases/$(database)/documents/profiles/$(request.auth.uid)/roles/conductor)
+      );
+    }
+
+    function hasActiveSubscription(subscriberId) {
+      return isAdmin() || (
+        exists(/databases/$(database)/documents/subscriptions/$(subscriberId)) &&
+        request.time < get(/databases/$(database)/documents/subscriptions/$(subscriberId)).data.paidThroughDate
+      );
+    }
+
+    // Global Access Control: Admin (UID: 37Qpvpp1kpfcvkYiVpLRU1EGwE52) has full access to all documents
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // -------------------------------------------------------------
+    // Health / Connection Test
+    // -------------------------------------------------------------
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // -------------------------------------------------------------
+    // User Profiles & Assigned Roles
+    // -------------------------------------------------------------
+    match /profiles/{uid} {
+      // Admin has read access to all user data; other users locked down to their own profile only
+      allow read: if isUser(uid) || isAdmin();
+      allow create: if isUser(uid) && request.resource.data.uid == uid;
+      allow update: if isUser(uid) || isAdmin();
+      allow delete: if isAdmin();
+
+      // Roles subcollection
+      match /roles/{role} {
+        allow read: if isUser(uid) || isAdmin();
+        allow write: if isAdmin();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // User Files & Uploads (Admin read all, user only their own)
+    // -------------------------------------------------------------
+    match /userFiles/{fileId} {
+      allow read: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // Dedicated Admins registry
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // -------------------------------------------------------------
+    // Public Transit Routes, Stops, and Terminals
+    // -------------------------------------------------------------
+    match /routes/{routeId} {
+      // Public read so all passengers can view routes and schedules without obstacle
+      allow read: if true;
+      allow write: if isAdmin();
+
+      match /stops/{stopId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    match /stands/{standId} {
+      // Public read for city bus terminals and route origins
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // -------------------------------------------------------------
+    // Buses & Fleet Registry
+    // -------------------------------------------------------------
+    match /buses/{busId} {
+      // Public read so passengers can view vehicle details and assigned route numbers
+      allow read: if true;
+
+      // Drivers/Conductors can submit pending bus registrations; Admins have full access
+      allow create: if isAdmin() || (
+        isDriverOrConductor() &&
+        request.resource.data.approvalStatus == 'pending' &&
+        request.resource.data.ownerUid == request.auth.uid &&
+        request.resource.data.isActive == false
+      );
+
+      // Drivers and Conductors can update bus details (e.g. upload vehicle photo); Admin can modify approvalStatus/subscription
+      allow update: if isAdmin() || (
+        isDriverOrConductor() &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['approvalStatus', 'subscription', 'isActive'])
+      );
+
+      allow delete: if isAdmin();
+
+      match /crew/{crewUid} {
+        allow read: if isSignedIn();
+        allow write: if isAdmin() || (isDriverOrConductor() && crewUid == request.auth.uid);
+      }
+    }
+
+    // Normalized bus registry index for duplicate prevention
+    match /normalizedBuses/{normalizedNumber} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // -------------------------------------------------------------
+    // Trips & Live Transit Coordination
+    // -------------------------------------------------------------
+    match /trips/{tripId} {
+      // Public read for live tracking of moving buses
+      allow read: if true;
+
+      // Driver or Conductor with valid bus assignment or Admin can start a trip
+      allow create: if isAdmin() || (
+        isDriverOrConductor() &&
+        request.resource.data.driverUid == request.auth.uid
+      );
+
+      // Assigned crew can update GPS coordinates and completed stops
+      allow update: if isAdmin() || (
+        isDriverOrConductor() &&
+        (resource.data.driverUid == request.auth.uid || resource.data.conductorUid == request.auth.uid)
+      );
+
+      allow delete: if isAdmin();
+
+      // Aggregated passenger waiting count per stop
+      match /busStopWaits/{busId_stopId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Passenger Wait Signals & Notifications
+    // -------------------------------------------------------------
+    match /waitSignals/{signalId} {
+      // Passengers can only read their own wait signals; Admin has read access to all
+      allow read: if (isSignedIn() && resource.data.passengerUid == request.auth.uid) || isAdmin();
+
+      // Passenger creates signal with deterministic ID: ${passengerUid}_${busId}_${tripId}
+      allow create: if isSignedIn() &&
+        request.resource.data.passengerUid == request.auth.uid &&
+        request.resource.data.status == 'active';
+
+      // Passenger can update status (e.g. marked 'boarded' or 'cancelled')
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        (resource.data.passengerUid == request.auth.uid &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+      );
+
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.passengerUid == request.auth.uid);
+    }
+
+    // -------------------------------------------------------------
+    // Onboard Passengers ("I am in the Bus")
+    // -------------------------------------------------------------
+    match /onboardPassengers/{onboardId} {
+      // Passengers and crews/admins can read onboard passengers
+      allow read: if isSignedIn();
+
+      // Passenger creates onboard record
+      allow create: if isSignedIn() &&
+        request.resource.data.passengerUid == request.auth.uid &&
+        request.resource.data.status == 'onboard';
+
+      // Passenger can update status (completed/destination change)
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        resource.data.passengerUid == request.auth.uid
+      );
+
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.passengerUid == request.auth.uid);
+    }
+
+    // -------------------------------------------------------------
+    // Subscriptions & Payment Records
+    // -------------------------------------------------------------
+    match /subscriptions/{subscriberId} {
+      allow read: if isUser(subscriberId) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isSignedIn() && (resource.data.subscriberId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /paymentEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // -------------------------------------------------------------
+    // Admin Action Audit Logs
+    // -------------------------------------------------------------
+    match /adminAuditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}

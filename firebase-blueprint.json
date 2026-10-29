@@ -1,0 +1,210 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account profile for passengers, drivers, conductors, and transit admins.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique Firebase Auth user ID" },
+        "phone": { "type": "string", "description": "Verified E.164 phone number" },
+        "displayName": { "type": "string", "description": "Full name of the user" },
+        "currentRole": { "type": "string", "enum": ["passenger", "driver", "conductor", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "phone", "displayName", "currentRole", "createdAt"]
+    },
+    "BusRoute": {
+      "title": "BusRoute",
+      "description": "Kolkata transit bus route definition and schedule.",
+      "type": "object",
+      "properties": {
+        "routeNumber": { "type": "string", "description": "Route identifier e.g. S-12, 230" },
+        "name": { "type": "string", "description": "Descriptive route name" },
+        "origin": { "type": "string" },
+        "destination": { "type": "string" },
+        "category": { "type": "string", "enum": ["government", "private", "ac_express"] },
+        "firstBus": { "type": "string" },
+        "lastBus": { "type": "string" },
+        "frequencyMins": { "type": "number" },
+        "fareStartingInr": { "type": "number" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["routeNumber", "name", "origin", "destination", "category", "isActive"]
+    },
+    "BusStand": {
+      "title": "BusStand",
+      "description": "Major bus terminal or terminus hub in Kolkata metropolitan area.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "capacityBuses": { "type": "number" }
+      },
+      "required": ["id", "name", "location", "lat", "lng"]
+    },
+    "BusRegistration": {
+      "title": "BusRegistration",
+      "description": "Registered Kolkata bus vehicle application and operational details.",
+      "type": "object",
+      "properties": {
+        "busNumber": { "type": "string", "description": "Display format e.g. WB 04 G 4589" },
+        "normalizedBusNumber": { "type": "string", "description": "Normalized uppercase format for duplicate prevention" },
+        "modelNumber": { "type": "string" },
+        "frontPhotoUrl": { "type": "string" },
+        "assignedRouteId": { "type": "string" },
+        "routeNumber": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "ownerName": { "type": "string" },
+        "ownerPhone": { "type": "string" },
+        "approvalStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "deactivated"] },
+        "appliedAt": { "type": "string", "format": "date-time" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["busNumber", "normalizedBusNumber", "modelNumber", "assignedRouteId", "ownerUid", "approvalStatus", "isActive"]
+    },
+    "Trip": {
+      "title": "Trip",
+      "description": "Scheduled or active trip in progress on a specific route.",
+      "type": "object",
+      "properties": {
+        "busId": { "type": "string" },
+        "busNumber": { "type": "string" },
+        "routeId": { "type": "string" },
+        "routeNumber": { "type": "string" },
+        "driverUid": { "type": "string" },
+        "driverName": { "type": "string" },
+        "status": { "type": "string", "enum": ["scheduled", "active", "completed", "cancelled"] },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": "string", "format": "date-time" }
+      },
+      "required": ["busId", "busNumber", "routeId", "routeNumber", "driverUid", "status", "startTime"]
+    },
+    "WaitSignal": {
+      "title": "WaitSignal",
+      "description": "Passenger wait signal for a specific bus on its active trip.",
+      "type": "object",
+      "properties": {
+        "passengerUid": { "type": "string" },
+        "passengerPhone": { "type": "string" },
+        "busId": { "type": "string" },
+        "busNumber": { "type": "string" },
+        "tripId": { "type": "string" },
+        "routeId": { "type": "string" },
+        "stopId": { "type": "string" },
+        "stopName": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "boarded", "expired"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["passengerUid", "busId", "tripId", "stopId", "status", "timestamp"]
+    },
+    "UserSubscription": {
+      "title": "UserSubscription",
+      "description": "Server-authoritative subscription record with 3-month trial and paid status.",
+      "type": "object",
+      "properties": {
+        "subscriberId": { "type": "string" },
+        "type": { "type": "string", "enum": ["passenger", "bus"] },
+        "status": { "type": "string", "enum": ["trial", "active", "cancelled", "expired"] },
+        "trialStartDate": { "type": "string", "format": "date-time" },
+        "trialEndDate": { "type": "string", "format": "date-time" },
+        "paidThroughDate": { "type": "string", "format": "date-time" },
+        "autoRenew": { "type": "boolean" },
+        "monthlyAmountInr": { "type": "number" }
+      },
+      "required": ["subscriberId", "type", "status", "trialStartDate", "trialEndDate", "paidThroughDate", "autoRenew", "monthlyAmountInr"]
+    },
+    "PaymentRecord": {
+      "title": "PaymentRecord",
+      "description": "Payment transactions for transit pass subscriptions.",
+      "type": "object",
+      "properties": {
+        "subscriberId": { "type": "string" },
+        "userPhone": { "type": "string" },
+        "type": { "type": "string", "enum": ["passenger", "bus"] },
+        "amountInr": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string" },
+        "provider": { "type": "string" },
+        "providerPaymentId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["subscriberId", "amountInr", "currency", "status", "createdAt"]
+    },
+    "AdminAuditLog": {
+      "title": "AdminAuditLog",
+      "description": "Immutable log record of actions taken by transit administrators.",
+      "type": "object",
+      "properties": {
+        "adminUid": { "type": "string" },
+        "adminName": { "type": "string" },
+        "action": { "type": "string" },
+        "targetType": { "type": "string" },
+        "targetId": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["adminUid", "adminName", "action", "targetType", "targetId", "details", "timestamp"]
+    },
+    "UserFile": {
+      "title": "UserFile",
+      "description": "Uploaded file record metadata stored in Firebase Storage.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "fileName": { "type": "string" },
+        "downloadUrl": { "type": "string" },
+        "storagePath": { "type": "string" },
+        "contentType": { "type": "string" },
+        "sizeBytes": { "type": "number" },
+        "uploadedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "fileName", "downloadUrl", "storagePath", "uploadedAt"]
+    }
+  },
+  "firestore": {
+    "/profiles/{uid}": {
+      "schema": { "$ref": "UserProfile" },
+      "description": "User profiles for commuters, transit crew, and administrators."
+    },
+    "/userFiles/{fileId}": {
+      "schema": { "$ref": "UserFile" },
+      "description": "Metadata for files uploaded to Firebase Storage by transit users."
+    },
+    "/routes/{routeId}": {
+      "schema": { "$ref": "BusRoute" },
+      "description": "Official Kolkata metropolitan bus transit routes."
+    },
+    "/stands/{standId}": {
+      "schema": { "$ref": "BusStand" },
+      "description": "Official Kolkata bus stands and terminals."
+    },
+    "/buses/{busId}": {
+      "schema": { "$ref": "BusRegistration" },
+      "description": "Bus vehicles registered with the transit authority."
+    },
+    "/trips/{tripId}": {
+      "schema": { "$ref": "Trip" },
+      "description": "Active and scheduled transit trips."
+    },
+    "/waitSignals/{signalId}": {
+      "schema": { "$ref": "WaitSignal" },
+      "description": "Deterministic passenger wait signals keyed by passenger, bus, and trip."
+    },
+    "/subscriptions/{subscriberId}": {
+      "schema": { "$ref": "UserSubscription" },
+      "description": "Server-authoritative billing and trial status records."
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "PaymentRecord" },
+      "description": "Completed subscription payment transactions."
+    },
+    "/adminAuditLogs/{logId}": {
+      "schema": { "$ref": "AdminAuditLog" },
+      "description": "Immutable records of administrator management operations."
+    }
+  }
+}

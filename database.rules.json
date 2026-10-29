@@ -1,0 +1,15 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "liveLocations": {
+      "$busId": {
+        // Authenticated passengers and crew can read live vehicle locations
+        ".read": "auth != null",
+        // Only authenticated user can transmit GPS ping with valid coordinates and timestamp
+        ".write": "auth != null && (!data.exists() || data.child('driverUid').val() === auth.uid || newData.child('driverUid').val() === auth.uid)",
+        ".validate": "newData.hasChildren(['lat', 'lng', 'speedKmh', 'heading', 'timestamp']) && newData.child('lat').isNumber() && newData.child('lng').isNumber()"
+      }
+    }
+  }
+}
