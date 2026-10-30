@@ -1,4 +1,4 @@
-import { BusStand, BusRoute } from '../types';
+import { BusStand, BusRoute, Trip } from '../types';
 
 export interface BusLocationInput {
   lat: number;
@@ -184,20 +184,11 @@ export function calculateBusEta(
  * Sorts and filters approaching buses to a given bus stand by ETA ascending.
  */
 export function getBusesApproachingStand(
-  trips: Array<{
-    id: string;
-    busId: string;
-    busNumber: string;
-    routeId: string;
-    routeNumber: string;
-    driverName: string;
-    status: string;
-    currentLocation?: BusLocationInput;
-  }>,
+  trips: Trip[],
   stand: BusStand,
   routes: BusRoute[]
 ): Array<{
-  trip: (typeof trips)[0];
+  trip: Trip;
   eta: BusEtaResult;
   route?: BusRoute;
 }> {
