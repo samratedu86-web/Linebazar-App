@@ -109,7 +109,7 @@ async function startServer() {
     });
   } else {
     if (fs.existsSync(distPath)) {
-      app.use(express.static(distPath));
+      app.use(express.static(distPath, { index: false }));
     }
     app.get('*', (req, res) => {
       const indexPath = path.resolve(distPath, 'index.html');
