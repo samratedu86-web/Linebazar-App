@@ -93,6 +93,9 @@ async function startServer() {
       app.use(express.static(distPath, { index: false }));
     }
     app.get("*", (req, res) => {
+      if (req.path.startsWith("/api/") || req.path.includes(".")) {
+        return res.status(404).send("Not Found");
+      }
       const indexPath = path.resolve(distPath, "index.html");
       if (fs.existsSync(indexPath)) {
         res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
