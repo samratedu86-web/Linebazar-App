@@ -114,6 +114,9 @@ async function startServer() {
     app.get('*', (req, res) => {
       const indexPath = path.resolve(distPath, 'index.html');
       if (fs.existsSync(indexPath)) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.sendFile(indexPath);
       } else {
         res.status(200).send('<!doctype html><html><head><title>Linebazar - Kolkata Bus Transit</title></head><body><h1>Linebazar Transit Service Active</h1></body></html>');
