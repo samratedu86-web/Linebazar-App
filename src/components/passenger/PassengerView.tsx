@@ -30,6 +30,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0]?.id || '');
+  const [selectedBusId, setSelectedBusId] = useState<string>('');
   const [selectedStopId, setSelectedStopId] = useState<string>('');
   const [selectedBusIdsForWait, setSelectedBusIdsForWait] = useState<string[]>([]);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -93,11 +94,36 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
     return getBusesApproachingStand(trips, selectedStand, routes);
   }, [trips, selectedStand, routes]);
 
+  // Destination search & matching live buses
+  const matchingDestinationBuses = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q || q.length < 2) return [];
+
+    const matchedRoutes = routes.filter((r) =>
+      r.destination.toLowerCase().includes(q) ||
+      r.origin.toLowerCase().includes(q) ||
+      r.name.toLowerCase().includes(q) ||
+      r.routeNumber.toLowerCase().includes(q) ||
+      r.stops.some((s) => s.name.toLowerCase().includes(q))
+    );
+
+    const results: Array<{ route: BusRoute; trip: Trip; bus?: BusRegistration }> = [];
+    matchedRoutes.forEach((route) => {
+      const routeTrips = trips.filter((t) => t.routeId === route.id && t.status === 'active' && t.currentLocation);
+      routeTrips.forEach((trip) => {
+        const bus = buses.find((b) => b.id === trip.busId);
+        results.push({ route, trip, bus });
+      });
+    });
+
+    return results;
+  }, [searchQuery, routes, trips, buses]);
+
   // Filter approaching buses by query (route number, driver, destination)
   const filteredStandBuses = useMemo(() => {
     if (!standSearchQuery) return standApproachingBuses;
     const q = standSearchQuery.toLowerCase().trim();
-    return standApproachingBuses.filter(({ trip, route }) =>
+    return standApproachingBuses.filter(({ trip, route }: { trip: Trip; route?: BusRoute }) =>
       trip.busNumber.toLowerCase().includes(q) ||
       trip.routeNumber.toLowerCase().includes(q) ||
       trip.driverName.toLowerCase().includes(q) ||
@@ -611,6 +637,72 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
               )}
             </div>
 
+            {/* Destination Search & Live Bus Options Matcher */}
+            {searchQuery.trim().length >= 2 && (
+              <div className="bg-amber-50/90 border border-amber-200 rounded-2xl p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-600 animate-spin" />
+                    <span>Live Bus Options for "{searchQuery}" ({matchingDestinationBuses.length} active buses found):</span>
+                  </div>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-xs text-amber-800 hover:text-amber-950 font-semibold"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                {matchingDestinationBuses.length === 0 ? (
+                  <div className="text-xs text-slate-600 py-2">
+                    No active buses currently on road matching this destination/stop. Try searching for major hubs like <span className="font-semibold text-slate-900">Howrah, Esplanade, Salt Lake, Jadavpur</span>, or route numbers like <span className="font-semibold text-slate-900">S-12, AC-12, 230</span>.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[260px] overflow-y-auto pr-1">
+                    {matchingDestinationBuses.map(({ route, trip, bus }) => (
+                      <div
+                        key={trip.id}
+                        className="bg-white rounded-xl border border-amber-200/80 p-3 shadow-2xs flex items-center justify-between gap-3 hover:border-amber-400 transition"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-xs rounded">
+                              {route.routeNumber}
+                            </span>
+                            <span className="text-xs font-bold text-slate-900 truncate max-w-[140px]">
+                              {trip.busNumber}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 truncate max-w-[180px]">
+                            {route.origin} → {route.destination}
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] font-mono text-slate-600">
+                            <span className="text-emerald-700 font-bold bg-emerald-50 px-1 rounded">{trip.currentLocation?.speedKmh || 25} km/h</span>
+                            <span>Driver: {trip.driverName}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setSelectedRouteId(route.id);
+                            setSelectedBusId(trip.busId);
+                            setNotification({
+                              type: 'success',
+                              message: `Tracking Route ${route.routeNumber} (${trip.busNumber}) on map!`,
+                            });
+                          }}
+                          className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow-sm transition shrink-0 flex items-center gap-1.5"
+                        >
+                          <Navigation className="w-3 h-3 text-amber-400" />
+                          <span>Live Map</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Route Horizontal Carousel */}
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -719,6 +811,8 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
               stands={stands}
               waitSignals={waitSignals}
               selectedRouteId={selectedRouteId}
+              selectedBusId={selectedBusId}
+              onSelectBus={(bId) => setSelectedBusId(bId)}
               onSelectStop={(stopId) => setSelectedStopId(stopId)}
               className="h-[400px] w-full rounded-xl overflow-hidden border border-slate-200"
             />
