@@ -64,9 +64,11 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('passenger')}
           className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2 text-left whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity"
         >
-          <span className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-black flex items-center justify-center text-sm shadow-sm">
-            LB
-          </span>
+          <img
+            src="/logo.jpeg"
+            alt="Linebazar Logo"
+            className="w-8 h-8 rounded-lg object-cover shadow-sm border border-amber-300"
+          />
           <span>Linebazar</span>
         </button>
 
