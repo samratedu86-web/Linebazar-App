@@ -9,6 +9,7 @@ import { PhoneAuthModal } from './components/auth/PhoneAuthModal';
 import { KolkataTransitMap } from './components/map/KolkataTransitMap';
 import { store } from './services/store';
 import { firestoreSync } from './services/firestoreSync';
+import { OfflineIndicator } from './components/common/OfflineIndicator';
 import {
   AdminAuditLog,
   BusRegistration,
@@ -101,6 +102,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-amber-400 selection:text-slate-950">
+      <OfflineIndicator />
       {/* Top Header Bar */}
       <Header
         currentUser={currentUser}

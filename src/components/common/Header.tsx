@@ -7,6 +7,7 @@ import {
   DESIGNATED_ADMIN_EMAIL,
 } from '../../types';
 import { FileUpload } from './FileUpload';
+import { PWAInstallButton } from './PWAInstallButton';
 import { auth, firebaseConfig } from '../../lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { store } from '../../services/store';
@@ -129,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Zone 3: Primary Action / User Account */}
         <div className="flex items-center gap-2.5 shrink-0">
-
+          <PWAInstallButton />
 
           {currentUser ? (
             <div className="flex items-center gap-2.5">
