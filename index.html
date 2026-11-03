@@ -19,6 +19,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script>
+      // Permanently suppress Vite HMR WebSocket closed warnings in AI Studio preview
+      if (typeof window !== 'undefined') {
+        const originalError = console.error;
+        console.error = function(...args) {
+          if (args[0] && typeof args[0] === 'string' && (args[0].includes('WebSocket closed without opened') || args[0].includes('[vite]'))) {
+            return;
+          }
+          originalError.apply(console, args);
+        };
+      }
+    </script>
   </head>
   <body class="font-sans antialiased bg-slate-50 text-slate-900 min-h-screen">
     <div id="root"></div>
