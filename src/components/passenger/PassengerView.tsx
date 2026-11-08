@@ -32,6 +32,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
   const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0]?.id || '');
   const [selectedBusId, setSelectedBusId] = useState<string>('');
   const [selectedStopId, setSelectedStopId] = useState<string>('');
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedBusIdsForWait, setSelectedBusIdsForWait] = useState<string[]>([]);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -94,7 +95,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
     return getBusesApproachingStand(trips, selectedStand, routes);
   }, [trips, selectedStand, routes]);
 
-  // Destination search & matching live buses
+  // Destination search & matching live buses sorted by proximity (nearest to user) and time order
   const matchingDestinationBuses = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     if (!q || q.length < 2) return [];
@@ -107,17 +108,50 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
       r.stops.some((s) => s.name.toLowerCase().includes(q))
     );
 
-    const results: Array<{ route: BusRoute; trip: Trip; bus?: BusRegistration }> = [];
+    const results: Array<{
+      route: BusRoute;
+      trip: Trip;
+      bus?: BusRegistration;
+      distanceKm: number;
+      etaMinutes: number;
+    }> = [];
+
     matchedRoutes.forEach((route) => {
       const routeTrips = trips.filter((t) => t.routeId === route.id && t.status === 'active' && t.currentLocation);
       routeTrips.forEach((trip) => {
         const bus = buses.find((b) => b.id === trip.busId);
-        results.push({ route, trip, bus });
+        const loc = trip.currentLocation!;
+        
+        let distKm = 3.5; // default estimate
+        if (userLocation) {
+          const R = 6371;
+          const dLat = ((loc.lat - userLocation.lat) * Math.PI) / 180;
+          const dLon = ((loc.lng - userLocation.lng) * Math.PI) / 180;
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((userLocation.lat * Math.PI) / 180) * Math.cos((loc.lat * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          distKm = R * c;
+        }
+
+        const speed = loc.speedKmh || 22;
+        const etaMins = Math.max(1, Math.round((distKm / Math.max(speed, 10)) * 60));
+
+        results.push({
+          route,
+          trip,
+          bus,
+          distanceKm: Number(distKm.toFixed(1)),
+          etaMinutes: etaMins,
+        });
       });
     });
 
+    // Sort by proximity (nearest bus first) and time order (fastest ETA first)
+    results.sort((a, b) => a.distanceKm - b.distanceKm || a.etaMinutes - b.etaMinutes);
+
     return results;
-  }, [searchQuery, routes, trips, buses]);
+  }, [searchQuery, routes, trips, buses, userLocation]);
 
   // Filter approaching buses by query (route number, driver, destination)
   const filteredStandBuses = useMemo(() => {
@@ -659,7 +693,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[260px] overflow-y-auto pr-1">
-                    {matchingDestinationBuses.map(({ route, trip, bus }) => (
+                    {matchingDestinationBuses.map(({ route, trip, bus, distanceKm, etaMinutes }) => (
                       <div
                         key={trip.id}
                         className="bg-white rounded-xl border border-amber-200/80 p-3 shadow-2xs flex items-center justify-between gap-3 hover:border-amber-400 transition"
@@ -676,9 +710,9 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                           <div className="text-[11px] text-slate-500 truncate max-w-[180px]">
                             {route.origin} → {route.destination}
                           </div>
-                          <div className="flex items-center gap-2 text-[10px] font-mono text-slate-600">
-                            <span className="text-emerald-700 font-bold bg-emerald-50 px-1 rounded">{trip.currentLocation?.speedKmh || 25} km/h</span>
-                            <span>Driver: {trip.driverName}</span>
+                          <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-700 flex-wrap">
+                            <span className="text-amber-800 font-bold bg-amber-100 px-1.5 py-0.5 rounded">📍 {distanceKm} km away</span>
+                            <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">⏱️ ~{etaMinutes} min</span>
                           </div>
                         </div>
 
@@ -814,6 +848,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
               selectedBusId={selectedBusId}
               onSelectBus={(bId) => setSelectedBusId(bId)}
               onSelectStop={(stopId) => setSelectedStopId(stopId)}
+              onUserLocationFound={(lat, lng) => setUserLocation({ lat, lng })}
               className="h-[400px] w-full rounded-xl overflow-hidden border border-slate-200"
             />
           </div>

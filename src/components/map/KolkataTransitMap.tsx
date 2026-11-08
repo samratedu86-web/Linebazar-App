@@ -13,6 +13,7 @@ interface KolkataTransitMapProps {
   selectedBusId?: string;
   onSelectBus?: (busId: string) => void;
   onSelectStop?: (stopId: string, stopName: string) => void;
+  onUserLocationFound?: (lat: number, lng: number) => void;
   className?: string;
 }
 
@@ -29,6 +30,7 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
   selectedBusId,
   onSelectBus,
   onSelectStop,
+  onUserLocationFound,
   className = 'h-[520px] w-full rounded-xl overflow-hidden shadow-sm border border-slate-200',
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -410,6 +412,9 @@ export const KolkataTransitMap: React.FC<KolkataTransitMapProps> = ({
       (pos) => {
         setLocating(false);
         const { latitude, longitude } = pos.coords;
+        if (onUserLocationFound) {
+          onUserLocationFound(latitude, longitude);
+        }
         map.setView([latitude, longitude], 15, { animate: true });
 
         // Add or move user marker
