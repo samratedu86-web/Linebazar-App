@@ -626,7 +626,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
             }`}
           >
             <Navigation className="w-3.5 h-3.5 text-amber-500" />
-            <span>Route & Stop Tracking (রুট ও স্টপ ভিত্তিক)</span>
+            <span>Route & Stop Tracking</span>
           </button>
           <button
             type="button"
@@ -638,7 +638,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
             }`}
           >
             <Clock className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-            <span>Bus Stand Live ETA Hub (বাস স্ট্যান্ড আগমন সূচি)</span>
+            <span>Bus Stand Live ETA Hub</span>
             <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-800 text-[9px] rounded-full font-bold uppercase tracking-wider">
               Live ETA
             </span>

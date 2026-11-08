@@ -49,6 +49,55 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
   // Modal State
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [authMethod, setAuthMethod] = useState<AuthMethod>('phone');
+  const [lang, setLang] = useState<'en' | 'hi' | 'bn'>('en');
+
+  const authTexts = {
+    en: {
+      signIn: 'Sign In',
+      signUp: 'Sign Up (3 Months Free)',
+      phoneTab: 'Mobile Number (OTP)',
+      emailTab: 'Email & Password',
+      mobileLabel: 'Mobile Phone Number',
+      emailLabel: 'Email Address',
+      passwordLabel: 'Password',
+      confirmPasswordLabel: 'Confirm Password',
+      fullNameLabel: 'Full Name',
+      sendOtpBtn: 'Send SMS Verification Code',
+      verifyBtn: 'Verify Code & Sign In',
+      instantBypassBtn: '⚡ Instant Test Login (No SMS required)',
+      selectRole: 'Select Account Role',
+    },
+    hi: {
+      signIn: 'साइन इन करें',
+      signUp: 'साइन अप करें (3 महीने फ्री)',
+      phoneTab: 'मोबाइल नंबर (OTP)',
+      emailTab: 'ईमेल और पासवर्ड',
+      mobileLabel: 'मोबाइल फोन नंबर',
+      emailLabel: 'ईमेल पता',
+      passwordLabel: 'पासवर्ड',
+      confirmPasswordLabel: 'पासवर्ड की पुष्टि करें',
+      fullNameLabel: 'पूरा नाम',
+      sendOtpBtn: 'एसएमएस सत्यापन कोड भेजें',
+      verifyBtn: 'कोड सत्यापित करें और साइन इन करें',
+      instantBypassBtn: '⚡ त्वरित परीक्षण लॉगिन (बिना एसएमएस के)',
+      selectRole: 'खाता भूमिका चुनें',
+    },
+    bn: {
+      signIn: 'সাইন ইন',
+      signUp: 'সাইন আপ (৩ মাস ফ্রি পাস)',
+      phoneTab: 'ফোন নম্বর (Mobile OTP)',
+      emailTab: 'ইমেইল ও পাসওয়ার্ড',
+      mobileLabel: 'মোবাইল ফোন নম্বর',
+      emailLabel: 'ইমেইল ঠিকানা',
+      passwordLabel: 'পাসওয়ার্ড',
+      confirmPasswordLabel: 'পাসওয়ার্ড কনফার্ম করুন',
+      fullNameLabel: 'আপনার পুরো নাম',
+      sendOtpBtn: 'SMS ভেরিফিকেশন কোড পাঠান',
+      verifyBtn: 'কোড ভেরিফাই ও সাইন ইন',
+      instantBypassBtn: '⚡ ইনস্ট্যান্ট টেস্ট লগইন (SMS কোড ছাড়া)',
+      selectRole: 'ভূমিকা নির্বাচন করুন (Select Role)',
+    },
+  };
 
   // Email / Password Form State
   const [email, setEmail] = useState('');
@@ -645,6 +694,20 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
           </button>
         </div>
 
+        {/* Language Selector */}
+        <div className="px-6 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-700">Choose Language / भाषा / ভাষা:</span>
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as 'en' | 'hi' | 'bn')}
+            className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-400"
+          >
+            <option value="en">English (EN)</option>
+            <option value="hi">हिन्दी (HI)</option>
+            <option value="bn">বাংলা (BN)</option>
+          </select>
+        </div>
+
         {/* Mode Switcher: Sign In vs Sign Up */}
         {!isResetMode && (
           <div className="flex border-b border-slate-200 bg-slate-100/70 p-1.5 gap-1.5">
@@ -661,7 +724,7 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Sign In (লগইন)
+              {authTexts[lang].signIn}
             </button>
             <button
               type="button"
@@ -676,7 +739,7 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Sign Up (৩ মাসের ফ্রি পাস)
+              {authTexts[lang].signUp}
             </button>
           </div>
         )}
