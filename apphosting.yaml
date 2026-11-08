@@ -8,6 +8,9 @@ runConfig:
   cpu: 1
   memoryMiB: 1024
 
+build:
+  buildCommand: npm run build
+
 env:
   - variable: NODE_ENV
     value: production
