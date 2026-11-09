@@ -520,7 +520,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
     // 5. Provide prominent feedback confirming GPS cut-off
     const endingStopName = endingStoppage?.name || 'Ending Stoppage';
     setTripStoppedFeedback(
-      `বাসটি নির্দিষ্ট Ending Stoppage (${endingStopName}) এ পৌঁছে সফলভাবে স্টপ করা হয়েছে। জিপিএস ট্র্যাকিং বন্ধ হয়েছে এবং যাত্রীরা আর কোনো লাইভ লোকেশন দেখতে পাবেন না।`
+      `Bus successfully stopped upon reaching ending stoppage (${endingStopName}). Live GPS tracking has been terminated and passengers will no longer see live bus locations.`
     );
   };
 
@@ -556,14 +556,14 @@ export const CrewView: React.FC<CrewViewProps> = ({
             <span className="text-2xl">🛑</span>
             <div>
               <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                বাস স্টপ সম্পন্ন হয়েছে · জিপিএস নিষ্ক্রিয় (Bus Stopped & GPS Terminated)
+                Bus Stopped · GPS Terminated
               </div>
               <p className="text-sm font-medium text-slate-200 mt-1">
                 {tripStoppedFeedback}
               </p>
               <div className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
-                <span>যাত্রীদের ম্যাপ এবং রুট ভিউ থেকে এই বাসের লাইভ ট্র্যাকিং সম্পূর্ণ বন্ধ রয়েছে।</span>
+                <span>Live tracking for this bus is disabled from passenger maps and route views.</span>
               </div>
             </div>
           </div>
@@ -691,11 +691,11 @@ export const CrewView: React.FC<CrewViewProps> = ({
               <div className="mt-4 pt-3 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <span>📷 বাসের ছবি (Vehicle Photo)</span>
+                    <span>📷 Vehicle Photo</span>
                   </div>
                   {primaryBus?.frontPhotoUrl && (
                     <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                      ✓ আপলোড করা হয়েছে
+                      ✓ Uploaded
                     </span>
                   )}
                 </div>
@@ -744,17 +744,17 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         className="flex-1 py-2 px-3 text-xs font-bold rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 disabled:opacity-50"
                       >
                         <span>📷</span>
-                        <span>{isUploadingPhoto ? 'আপলোড হচ্ছে...' : 'ছবি পরিবর্তন করুন'}</span>
+                        <span>{isUploadingPhoto ? 'Uploading...' : 'Change Photo'}</span>
                       </button>
                       <button
                         type="button"
                         disabled={isUploadingPhoto}
                         onClick={handleDeleteBusPhoto}
                         className="py-2 px-3 text-xs font-bold rounded-lg bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 transition flex items-center justify-center gap-1 shadow-2xs active:scale-95 disabled:opacity-50"
-                        title="বাসের ছবি মুছে ফেলুন"
+                        title="Delete vehicle photo"
                       >
                         <span>🗑️</span>
-                        <span>ডিলিট</span>
+                        <span>Delete</span>
                       </button>
                     </div>
                   </div>
@@ -766,10 +766,10 @@ export const CrewView: React.FC<CrewViewProps> = ({
                     </div>
                     <div>
                       <div className="text-xs font-bold text-slate-800">
-                        কোনো বাসের ছবি আপলোড করা হয়নি
+                        No bus photo uploaded yet
                       </div>
                       <p className="text-[11px] text-slate-500 max-w-xs mx-auto mt-0.5 leading-relaxed">
-                        ড্রাইভার/কন্ডাক্টর হিসেবে আপনার নিজের বাসের ছবি আপলোড করুন যাতে যাত্রীরা বাসটি দেখেই সহজে চিনতে পারেন।
+                        Upload your real bus photo so passengers can easily identify your vehicle.
                       </p>
                     </div>
 
@@ -782,12 +782,12 @@ export const CrewView: React.FC<CrewViewProps> = ({
                       {isUploadingPhoto ? (
                         <>
                           <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
-                          <span>ছবি প্রসেস হচ্ছে...</span>
+                          <span>Processing photo...</span>
                         </>
                       ) : (
                         <>
                           <span className="text-base">📷</span>
-                          <span>নিজের বাসের ছবি আপলোড করুন</span>
+                          <span>Upload Vehicle Photo</span>
                         </>
                       )}
                     </button>
@@ -901,7 +901,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                             GPS Live Broadcasting Activated
                           </div>
                           <div className="text-[11px] text-slate-900">
-                            যাত্রীরা এখন আপনার বাসের লাইভ অবস্থান ও স্টপ দেখতে পাচ্ছেন।
+                            Passengers can now view your bus live location and stops.
                           </div>
                         </div>
                       </div>
@@ -913,7 +913,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                     {/* Live Telemetry Grid */}
                     <div className="grid grid-cols-3 gap-2.5 text-center">
                       <div className="bg-white p-3 rounded-xl border border-slate-200">
-                        <div className="text-[10px] text-slate-400 uppercase font-bold">Speed (গতি)</div>
+                        <div className="text-[10px] text-slate-400 uppercase font-bold">Speed</div>
                         <div className="text-lg font-black font-mono tabular-nums text-slate-900 mt-0.5">
                           {activeTrip.currentLocation?.speedKmh || 26} <span className="text-xs font-normal">km/h</span>
                         </div>
@@ -931,11 +931,11 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         </div>
                         {nextStopWaitingCount > 0 ? (
                           <div className="text-[10px] font-bold text-amber-950 bg-amber-200 px-1.5 py-0.5 rounded mt-1 inline-block animate-pulse">
-                            👥 {nextStopWaitingCount} জন অপেক্ষা করছেন
+                            👥 {nextStopWaitingCount} waiting
                           </div>
                         ) : (
                           <div className="text-[10px] text-slate-400 mt-1">
-                            ০ জন অপেক্ষমাণ
+                            0 waiting
                           </div>
                         )}
                       </div>
@@ -945,7 +945,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                     <div className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-2">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-500 font-medium">
-                          গন্তব্যের অগ্রগতি (Progress to Ending Stoppage):
+                          Progress to Ending Stoppage:
                         </span>
                         <span className="font-bold text-slate-900">
                           {Math.min(currentProgressIndex + 1, stopsList.length)} of {stopsList.length} Stops
@@ -963,13 +963,13 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         />
                       </div>
                       <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                        <span>🏁 অন্তিম স্টপেজ: <strong className="text-slate-800">{endingStoppage?.name}</strong></span>
+                        <span>🏁 Ending Stop: <strong className="text-slate-800">{endingStoppage?.name}</strong></span>
                         {/* Testing Fast Forward */}
                         {!isAtEndingStoppage && (
                           <button
                             onClick={handleFastForwardToEndingStop}
                             className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline"
-                            title="টেস্টিং এর জন্য অন্তিম স্টপেজে পৌঁছানোর সিমুলেশন করুন"
+                            title="Simulate reaching end stop for testing"
                           >
                             Fast Forward to End Stop (Test) ⏩
                           </button>
@@ -982,8 +982,8 @@ export const CrewView: React.FC<CrewViewProps> = ({
                       <div className="p-3 rounded-xl bg-amber-100 border-2 border-amber-500 text-slate-950 text-xs font-medium flex items-center gap-2 animate-bounce">
                         <span className="text-lg">🎯</span>
                         <div>
-                          <strong>বাসটি নির্দিষ্ট ending stoppage ({endingStoppage?.name}) এ পৌঁছেছে!</strong>
-                          <div>অনুগ্রহ করে নিচে 'বাস স্টপ করুন' অপশন চাপুন।</div>
+                          <strong>Bus has reached the designated ending stoppage ({endingStoppage?.name})!</strong>
+                          <div>Please click the 'Bus Stop' option below.</div>
                         </div>
                       </div>
                     )}
@@ -999,10 +999,10 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         }`}
                       >
                         <span className="text-lg">🛑</span>
-                        <span>বাস স্টপ করুন (Bus Stop Option - End Trip)</span>
+                        <span>Bus Stop (End Trip)</span>
                       </button>
                       <p className="text-[11px] text-center text-slate-500 mt-1.5">
-                        * বাস স্টপ অপশন ক্লিক করার সাথে সাথে জিপিএস ট্র্যাকিং বন্ধ হবে এবং যাত্রীরা আর লোকেশন দেখতে পাবে না।
+                        * Clicking Bus Stop immediately terminates GPS tracking and stops passenger live location updates.
                       </p>
                     </div>
                   </div>
@@ -1014,11 +1014,11 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         🚌
                       </div>
                       <h4 className="text-base font-black text-slate-900">
-                        বাস স্টার্ট অপশন (Bus Starting Option)
+                        Bus Starting Option
                       </h4>
                       <p className="text-xs text-slate-600 mt-1">
-                        লগইন থাকা অবস্থায় ডিপো বা প্রথম স্টপেজ থেকে বাস ছাড়ার সময় স্টার্ট করুন।
-                        বাস স্টার্ট অপশনে ক্লিক করার সাথে সাথে ডিভাইস GPS সক্রিয় হবে এবং যাত্রীরা ম্যাপে আপনার বাসের লাইভ লোকেশন দেখতে পাবেন।
+                        Start your trip when departing from the depot or initial stop while logged in.
+                        Clicking Start Trip activates device GPS so passengers can track your live bus location on the map.
                       </p>
                     </div>
 
@@ -1028,7 +1028,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         className="py-3.5 px-8 text-sm font-black rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 transition shadow-md hover:shadow-lg inline-flex items-center gap-2.5 active:scale-95"
                       >
                         <span className="text-lg">▶️</span>
-                        <span>বাস স্টার্ট করুন (Start Bus Trip)</span>
+                        <span>Start Bus Trip</span>
                       </button>
                     </div>
 
@@ -1056,7 +1056,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         <span className="text-xl">👥</span>
                         <div>
                           <div className="text-xs font-black text-emerald-950 uppercase tracking-wide">
-                            Passengers Currently Onboard (বাসে আছেন)
+                            Passengers Currently Onboard
                           </div>
                           <div className="text-[11px] text-emerald-700">
                             Real-time headcount confirmed by "I am in the Bus"
@@ -1077,13 +1077,13 @@ export const CrewView: React.FC<CrewViewProps> = ({
                           <span className="text-xl">🚏</span>
                           <div>
                             <h4 className="text-xs md:text-sm font-black text-slate-950 flex items-center gap-2">
-                              <span>যাত্রী অপেক্ষার রিয়েল-টাইম মনিটর</span>
+                              <span>Real-Time Passenger Wait Monitor</span>
                               <span className="text-[11px] text-amber-800 font-bold bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
                                 Route {assignedRoute?.routeNumber}
                               </span>
                             </h4>
                             <p className="text-[11px] text-slate-600">
-                              যাত্রী বাস স্টপে দাঁড়িয়ে "I am waiting" ক্লিক করার সাথে সাথে Drivers/Conductor এখানে লাইভ দেখতে পাবেন।
+                              Drivers and conductors see live passenger wait counts when passengers press "I am waiting" at stops.
                             </p>
                           </div>
                         </div>
@@ -1095,7 +1095,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                               : 'bg-slate-100 text-slate-600'
                           }`}>
                             <span>👥</span>
-                            <span>{totalWaitingCount} জন যাত্রী অপেক্ষা করছেন</span>
+                            <span>{totalWaitingCount} passengers waiting</span>
                           </span>
                         </div>
                       </div>
@@ -1117,7 +1117,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                                 <div className="flex items-start justify-between gap-1">
                                   <div>
                                     <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
-                                      স্টপ #{stop.sequence} · {stop.distanceFromStartKm} কিমি
+                                      Stop #{stop.sequence} · {stop.distanceFromStartKm} km
                                     </div>
                                     <div className="text-sm font-black text-slate-950 mt-0.5">
                                       {stop.name}
@@ -1130,14 +1130,14 @@ export const CrewView: React.FC<CrewViewProps> = ({
                                         : 'bg-amber-100 text-amber-950 border border-amber-300'
                                     }`}
                                   >
-                                    👥 {count} জন অপেক্ষা করছেন
+                                    👥 {count} waiting
                                   </span>
                                 </div>
 
                                 <div className="mt-2 text-[11px] text-slate-600 flex items-center justify-between border-t border-slate-100 pt-1.5">
                                   <span className="truncate">
-                                    যাত্রী: {signals.map((s) => s.passengerName || s.passengerPhone || 'Passenger').slice(0, 3).join(', ')}
-                                    {signals.length > 3 ? ` +${signals.length - 3} জন` : ''}
+                                    Passengers: {signals.map((s) => s.passengerName || s.passengerPhone || 'Passenger').slice(0, 3).join(', ')}
+                                    {signals.length > 3 ? ` +${signals.length - 3} more` : ''}
                                   </span>
                                   <span className="text-[10px] text-slate-400 font-mono shrink-0 ml-1">
                                     {new Date(signals[0]?.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -1151,7 +1151,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                         <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-xs flex items-center gap-2">
                           <span className="text-base">ℹ️</span>
                           <span>
-                            বর্তমানে Route {assignedRoute?.routeNumber} এর স্টপে কোনো যাত্রী অপেক্ষার সংকেত দেননি। যাত্রীরা স্টপে দাঁড়িয়ে <strong>"I am waiting"</strong> প্রেস করলেই ড্রাইভার/কন্ডাক্টর এখানে দেখতে পাবেন।
+                            No passengers are waiting at any stops currently. When passengers stand at stops and press <strong>"I am waiting"</strong>, drivers/conductors will see them here.
                           </span>
                         </div>
                       )}
@@ -1160,7 +1160,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                     {/* 3. Detailed Route Stoppage List */}
                     <div className="space-y-2">
                       <div className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
-                        <span>স্টপ অনুযায়ী যাত্রী চাহিদা ও ড্রপ-অফ ({assignedRoute?.routeNumber}):</span>
+                        <span>Stop-by-stop Passenger Demand & Drop-off ({assignedRoute?.routeNumber}):</span>
                         <span className="text-[10px] text-slate-500 font-normal">Waiting vs Alighting</span>
                       </div>
 
@@ -1246,7 +1246,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
         <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-2xl mx-auto shadow-xs">
           <div className="border-b border-slate-100 pb-4 mb-5">
             <div className="flex items-center gap-2 text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">
-              <span>🚌 বাস রেজিস্ট্রেশন আবেদন</span>
+              <span>🚌 Bus Registration Application</span>
               <span>·</span>
               <span>Drivers/Conductor Portal</span>
             </div>
@@ -1254,25 +1254,23 @@ export const CrewView: React.FC<CrewViewProps> = ({
               Bus Registration (Driver or Conductor Login)
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              একটি বাস registration করার সময় Driver অথবা Conductor যেকোনো একজন লগইন অবস্থায় থাকতে পারবেন।
-              অনুমোদনের সাথে সাথে ৩ মাসের ফ্রি ট্রায়াল সক্রিয় হবে এবং ট্রিপ পরিচালনা করা যাবে।
+              During bus registration, either Driver or Conductor must be signed in. Upon approval, the 3-month free trial will activate and trips can be operated.
             </p>
           </div>
 
           {/* Current Auth Status Notice */}
           {!currentUser ? (
             <div className="mb-5 p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs">
-              <div className="font-bold text-sm mb-1">লগইন প্রয়োজন (Sign-in Required)</div>
+              <div className="font-bold text-sm mb-1">Sign-in Required</div>
               <p>
-                বাস রেজিস্ট্রেশন করতে ড্রাইভার অথবা কন্ডাক্টর যেকোনো একজন লগইন অবস্থায় থাকতে হবে।
-                অনুগ্রহ করে নিচের বোতাম চেপে লগইন বা সাইন আপ করুন।
+                Either driver or conductor must be signed in to register a bus. Please click below to sign in or sign up.
               </p>
               <button
                 type="button"
                 onClick={onOpenAuth}
                 className="mt-3 py-2 px-4 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-xs text-xs"
               >
-                ড্রাইভার / কন্ডাক্টর হিসেবে লগইন করুন →
+                Sign in as Driver / Conductor →
               </button>
             </div>
           ) : (
@@ -1283,7 +1281,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                   <span className="font-bold">{currentUser.displayName}</span>
                   <span className="text-emerald-700 ml-1.5 font-mono">({currentUser.phone})</span>
                   <div className="text-[11px] text-emerald-800">
-                    লগইন আছেন: <strong className="uppercase">{currentUser.currentRole}</strong> হিসেবে।
+                    Signed in as: <strong className="uppercase">{currentUser.currentRole}</strong>
                   </div>
                 </div>
               </div>
@@ -1296,7 +1294,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
           <form onSubmit={handleRegisterBus} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Bus Registration Number (বাস নম্বর, যেমন: WB 04 G 4589)
+                Bus Registration Number (e.g. WB 04 G 4589)
               </label>
               <input
                 type="text"
@@ -1313,7 +1311,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Bus Model & Chassis (বাস মডেল ও বিবরণ)
+                Bus Model & Chassis
               </label>
               <input
                 type="text"
@@ -1326,7 +1324,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
             </div>
 
             <FileUpload
-              label="Bus Front Vehicle Photo (বাসের সামনের ছবি)"
+              label="Bus Front Vehicle Photo"
               helperText="Upload official front view photo of this bus vehicle to Firebase Storage (max 10MB)."
               storagePathPrefix="bus_photos"
               currentUrl={frontPhotoUrl}
@@ -1336,7 +1334,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Assigned Transit Route (নির্ধারিত বাস রুট)
+                Assigned Transit Route
               </label>
               <select
                 value={selectedRouteId}
@@ -1353,7 +1351,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Your Operational Role (আপনি কোন ভূমিকায় বাসটি রেজিস্টার করছেন)
+                Your Operational Role
               </label>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <button
@@ -1365,7 +1363,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  <span>🛞 Driver (ড্রাইভার)</span>
+                  <span>🛞 Driver</span>
                 </button>
                 <button
                   type="button"
@@ -1376,11 +1374,11 @@ export const CrewView: React.FC<CrewViewProps> = ({
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  <span>🎟️ Conductor (কন্ডাক্টর)</span>
+                  <span>🎟️ Conductor</span>
                 </button>
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
-                ড্রাইভার বা কন্ডাক্টর যেকোনো একজন লগইন অবস্থায় বাস রেজিস্টার করতে পারবেন। পরবর্তীতে অপরজন "Join as Driver/Conductor" অপশন দিয়ে যুক্ত হতে পারবেন।
+                Either driver or conductor can register the bus. The other crew member can later join using the "Join as Driver/Conductor" option.
               </p>
             </div>
 
@@ -1388,7 +1386,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
               type="submit"
               className="w-full py-3.5 text-sm font-bold rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm mt-3"
             >
-              বাস রেজিস্ট্রেশন নিশ্চিত করুন (Submit Registration)
+              Confirm Bus Registration (Submit Registration)
             </button>
           </form>
         </div>
@@ -1400,7 +1398,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
           <div className="border-b border-slate-100 pb-4 mb-5">
             <h2 className="text-lg font-bold text-slate-950">Join as Driver / Conductor</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              যদি আপনার বাসের ড্রাইভার বা কন্ডাক্টরের মধ্যে যেকোনো একজন ইতিমধ্যেই বাসটি রেজিস্টার করে থাকেন, তবে নিচের তালিকা থেকে বাসটি নির্বাচন করে নিজের প্রোফাইল যুক্ত করুন।
+              If your bus driver or conductor has already registered the bus, select it from the list below to join the crew.
             </p>
           </div>
 
@@ -1449,7 +1447,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                       : 'border-slate-200 text-slate-600'
                   }`}
                 >
-                  Driver (ড্রাইভার)
+                  Driver
                 </button>
                 <button
                   type="button"
@@ -1460,7 +1458,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
                       : 'border-slate-200 text-slate-600'
                   }`}
                 >
-                  Conductor (কন্ডাক্টর)
+                  Conductor
                 </button>
               </div>
             </div>
@@ -1469,7 +1467,7 @@ export const CrewView: React.FC<CrewViewProps> = ({
               type="submit"
               className="w-full py-3 text-sm font-bold rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 transition shadow-sm"
             >
-              Join Bus Team (টিমে যুক্ত হন)
+              Join Bus Team
             </button>
           </form>
         </div>

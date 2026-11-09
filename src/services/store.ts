@@ -706,7 +706,7 @@ export class LinebazarStore {
     if (!this.user) {
       return {
         success: false,
-        error: 'বাস রেজিস্ট্রেশন করার জন্য ড্রাইভার অথবা কন্ডাক্টর যেকোনো একজন লগইন অবস্থায় থাকা আবশ্যক (Either Driver or Conductor must be logged in).',
+        error: 'Either Driver or Conductor must be logged in to register a bus.',
       };
     }
 

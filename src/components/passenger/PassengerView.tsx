@@ -335,13 +335,13 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
       if (result.sent.length > 0) {
         setNotification({
           type: 'success',
-          message: `✓ আপনার অপেক্ষার সংকেত পাঠানো হয়েছে! Drivers/Conductor রা দেখতে পাবেন আপনি ${currentStop.name} স্টপে বাসের জন্য অপেক্ষা করছেন।`,
+          message: `✓ Waiting signal sent successfully! Drivers and conductors can now see that you are waiting at ${currentStop.name}.`,
         });
         setSelectedBusIdsForWait([]);
       } else if (result.skipped.length > 0) {
         setNotification({
           type: 'error',
-          message: `আপনি ইতিমধ্যে ${currentStop.name} স্টপে এই বাসের জন্য অপেক্ষার সংকেত পাঠিয়েছেন।`,
+          message: `You have already sent a waiting signal for this bus at ${currentStop.name}.`,
         });
       }
     } catch (err: any) {
@@ -365,12 +365,12 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
       if (result.sent.length > 0) {
         setNotification({
           type: 'success',
-          message: `✓ ${stand.name}-এ Bus ${targetTrip.busNumber} (Route ${targetTrip.routeNumber}) এর জন্য অপেক্ষার সংকেত সফলভাবে পাঠানো হয়েছে!`,
+          message: `✓ Waiting signal sent successfully for Bus ${targetTrip.busNumber} (Route ${targetTrip.routeNumber}) at ${stand.name}!`,
         });
       } else {
         setNotification({
           type: 'error',
-          message: `আপনি ইতিমধ্যে ${stand.name}-এ এই বাসের জন্য অপেক্ষার সংকেত পাঠিয়েছেন।`,
+          message: `You have already sent a waiting signal for this bus at ${stand.name}.`,
         });
       }
     } catch (err: any) {
@@ -654,7 +654,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by route (e.g. S-12, AC-12, 230), stop (e.g. Esplanade, Ultadanga, Howrah), or landmark..."
-                className="w-full pl-10 pr-4 py-3 text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+                className="w-full pl-10 pr-4 py-3 text-sm rounded-xl border-2 border-amber-400 bg-amber-100/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-500 font-semibold shadow-sm"
               />
               <span className="absolute left-3.5 top-3.5 text-slate-400">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1066,10 +1066,10 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                         <span className="text-xl">🕒</span>
                         <div>
                           <div className="text-xs font-black text-amber-950 uppercase tracking-wide">
-                            আপনি এই স্টপে অপেক্ষা করছেন (Waiting Signal Active)
+                            Waiting Signal Active
                           </div>
                           <div className="text-xs font-semibold text-amber-900 mt-0.5">
-                            {currentStop?.name} স্টপে Route {currentRoute.routeNumber} এর জন্য আপনার অপেক্ষার তথ্য ড্রাইভার ও কন্ডাক্টর দেখতে পাচ্ছেন।
+                            Drivers and conductors can see your wait signal for Route {currentRoute.routeNumber} at {currentStop?.name}.
                           </div>
                         </div>
                       </div>
@@ -1080,7 +1080,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                           className="py-2.5 px-3 rounded-lg text-xs font-bold bg-white border border-rose-300 text-rose-700 hover:bg-rose-50 transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                         >
                           <span>🛑</span>
-                          <span>অপেক্ষা বাতিল করুন</span>
+                          <span>Cancel Wait</span>
                         </button>
                         <button
                           type="button"
@@ -1088,7 +1088,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                           className="py-2.5 px-3 rounded-lg text-xs font-black bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center justify-center gap-1.5 shadow-xs active:scale-95"
                         >
                           <span>🚌</span>
-                          <span>বাসে উঠেছি (Board)</span>
+                          <span>Board Bus</span>
                         </button>
                       </div>
                     </div>
@@ -1100,13 +1100,13 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                 <div className="mt-5 pt-4 border-t border-slate-100 space-y-2.5">
                   {!currentUser && (
                     <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center justify-between gap-2">
-                      <span className="font-medium">🔑 বাসের জন্য অপেক্ষা জানাতে অনুগ্রহ করে লগইন করুন</span>
+                      <span className="font-medium">🔑 Please log in to send a bus waiting signal</span>
                       <button
                         type="button"
                         onClick={onOpenAuth}
                         className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shrink-0"
                       >
-                        লগইন করুন
+                        Sign In
                       </button>
                     </div>
                   )}
@@ -1119,7 +1119,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                       className="py-3 px-3 rounded-xl font-black text-xs md:text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm active:scale-[0.99] flex items-center justify-center gap-2"
                     >
                       <span className="text-base">🚌</span>
-                      <span>I am in the Bus (বাসে উঠেছি)</span>
+                      <span>I am in the Bus</span>
                     </button>
 
                     {/* 2. "I am Waiting" Signal Action */}
@@ -1133,14 +1133,14 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                       </svg>
                       <span className="truncate">
                         {selectedBusIdsForWait.length > 0
-                          ? `I am Waiting (${selectedBusIdsForWait.length} বাসে)`
-                          : 'I am Waiting (আমি অপেক্ষা করছি)'}
+                          ? `I am Waiting (${selectedBusIdsForWait.length} buses)`
+                          : 'I am Waiting'}
                       </span>
                     </button>
                   </div>
 
                   <p className="text-[11px] text-slate-500 text-center leading-relaxed">
-                    যাত্রী বাস স্টপে দাঁড়িয়ে <strong>"I am waiting"</strong> প্রেস করলে Drivers/Conductor রা দেখতে পাবেন কোন স্টপে কতজন অপেক্ষা করছেন।
+                    When passengers press <strong>"I am waiting"</strong> at a bus stop, drivers and conductors can see how many passengers are waiting at each stop in real-time.
                   </p>
                 </div>
               );
@@ -1207,10 +1207,10 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                   Kolkata Bus Stand & Terminal Selector
                 </span>
                 <h3 className="text-base font-bold text-slate-900 mt-0.5">
-                  Select Your Bus Stand (বাস স্ট্যান্ড নির্বাচন করুন)
+                  Select Your Bus Stand
                 </h3>
                 <p className="text-xs text-slate-500">
-                  নির্বাচিত বাস স্ট্যান্ড থেকে কত দূরে এবং কখন বাসগুলো এসে পৌঁছাবে তার নিখুঁত হিসাব (Live ETA)
+                  Live arrival estimates (ETA) and distance tracking from your selected bus stand
                 </p>
               </div>
               <div className="text-xs text-slate-500 font-medium">
@@ -1335,7 +1335,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                       {selectedStand.name}
                     </h3>
                     <p className="text-xs text-slate-500">
-                      দূরত্ব ও ট্রাফিকের ভিত্তিতে আগমনের আনুমানিক সময়
+                      Estimated arrival times based on real-time distance and traffic
                     </p>
                   </div>
                   <div className="text-right">
@@ -1362,7 +1362,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                   {filteredStandBuses.length === 0 ? (
                     <div className="p-6 rounded-xl bg-slate-50 text-center text-xs text-slate-500 space-y-1">
                       <Bus className="w-6 h-6 mx-auto text-slate-400" />
-                      <div className="font-semibold text-slate-700">কোনো বাস বর্তমানে কাছাকাছি নেই</div>
+                      <div className="font-semibold text-slate-700">No buses currently nearby</div>
                       <div className="text-[11px]">
                         No active GPS buses are currently approaching {selectedStand.name}. Check originating routes above.
                       </div>
@@ -1549,7 +1549,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
               {/* Origin / Boarding Stop */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  1. Boarding From (কোথা থেকে উঠেছেন):
+                  1. Boarding From:
                 </label>
                 <select
                   value={boardOriginStopId}
@@ -1575,7 +1575,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
               {/* Destination Stop (REQUIRED) */}
               <div>
                 <label className="block text-xs font-bold text-slate-900 mb-1 flex items-center justify-between">
-                  <span>2. Destination Stop (কোথায় নামবেন - নির্দিষ্ট গন্তব্য): *</span>
+                  <span>2. Destination Stop: *</span>
                   <span className="text-[11px] text-emerald-700 font-semibold">Required</span>
                 </label>
                 <select
@@ -1599,7 +1599,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                     ))}
                 </select>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  বোর্ডিং স্টপের পরের স্টপগুলো তালিকায় দেখানো হয়েছে।
+                  Stops following your boarding point are listed above.
                 </p>
               </div>
 
@@ -1613,7 +1613,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                   className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
                 />
                 <label htmlFor="notifyToggle" className="text-xs font-medium text-slate-700 cursor-pointer">
-                  🔔 গন্তব্যের ১টি স্টপ আগে অ্যালার্ট দিন (Alert me 1 stop before reaching destination)
+                  🔔 Alert me 1 stop before reaching destination
                 </label>
               </div>
             </div>
@@ -1633,7 +1633,7 @@ export const PassengerView: React.FC<PassengerViewProps> = ({
                 className="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition flex items-center gap-2"
               >
                 <span>✓</span>
-                <span>Confirm: I am in the Bus (কনফার্ম)</span>
+                <span>Confirm: I am in the Bus</span>
               </button>
             </div>
           </div>
