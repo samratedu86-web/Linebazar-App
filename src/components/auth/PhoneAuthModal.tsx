@@ -48,7 +48,7 @@ interface DiagnosticLogItem {
 export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
   // Modal State
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [authMethod, setAuthMethod] = useState<AuthMethod>('phone');
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('email');
   const [lang, setLang] = useState<'en' | 'hi' | 'bn'>('en');
 
   const authTexts = {
@@ -738,55 +738,10 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
           </div>
         )}
 
-        {/* Auth Method Selector (Phone OTP vs Email & Password) */}
+        {/* Notice that phone login is temporarily disabled */}
         {!isResetMode && (
-          <div className="px-6 pt-3 pb-1 flex items-center justify-center gap-2 border-b border-slate-100">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMethod('phone');
-                setError(null);
-                setStep('phone');
-              }}
-              className={`flex-1 pb-2 text-xs font-semibold border-b-2 transition flex items-center justify-center gap-1.5 ${
-                authMethod === 'phone'
-                  ? 'border-amber-500 text-slate-950 font-bold'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                />
-              </svg>
-              <span>ফোন নম্বর (Mobile OTP)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMethod('email');
-                setError(null);
-              }}
-              className={`flex-1 pb-2 text-xs font-semibold border-b-2 transition flex items-center justify-center gap-1.5 ${
-                authMethod === 'email'
-                  ? 'border-amber-500 text-slate-950 font-bold'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              <span>ইমেইল ও পাসওয়ার্ড</span>
-            </button>
+          <div className="px-6 py-2 bg-amber-50 border-b border-amber-100 text-[11px] text-amber-900 text-center font-medium">
+            📱 Phone number login is temporarily disabled. Please use Email & Password or Google sign-in.
           </div>
         )}
 
