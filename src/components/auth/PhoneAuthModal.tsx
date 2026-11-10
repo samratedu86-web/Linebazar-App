@@ -669,13 +669,7 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
         {/* Modal Header */}
         <div className="px-6 pt-5 pb-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-amber-50/30">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">
-                Firebase Project: linebazar-47669
-              </span>
-            </div>
-            <h2 className="text-base font-bold text-slate-900 mt-1">
+            <h2 className="text-base font-bold text-slate-900">
               {isResetMode
                 ? 'পাসওয়ার্ড রিসেট করুন'
                 : authMode === 'signin'
