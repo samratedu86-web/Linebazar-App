@@ -663,7 +663,7 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
       <div id="phone-auth-recaptcha-container" ref={recaptchaContainerRef} className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden" />
 
       <div
-        className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-auto relative animate-in fade-in zoom-in-95 duration-150"
+        className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col my-auto relative animate-in fade-in zoom-in-95 duration-150"
         style={{ zIndex: 1000000 }}
       >
         {/* Modal Header */}
@@ -746,7 +746,7 @@ export const PhoneAuthModal: React.FC<PhoneAuthModalProps> = ({ isOpen, onClose,
         )}
 
         {/* Modal Body */}
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto flex-1">
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2">
               <span className="text-rose-500 font-bold shrink-0 text-sm">⚠️</span>
